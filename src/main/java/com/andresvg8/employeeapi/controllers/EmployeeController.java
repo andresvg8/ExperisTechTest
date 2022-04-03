@@ -9,10 +9,7 @@ import org.hibernate.service.spi.ServiceException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.reactive.function.client.WebClient;
 
@@ -34,7 +31,8 @@ public class EmployeeController {
 	private WebClient.Builder webClient;
 
 	private final String endPoint = "http://dummy.restapiexample.com/api/v1";
-	
+
+	@CrossOrigin(origins = "http://localhost:8080")
 	@GetMapping("/{employeeId}")
 	public ResponseEntity<?> getEmployee(@PathVariable Long employeeId){
 		try{
@@ -52,7 +50,8 @@ public class EmployeeController {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("\tIt was not possible to retrieve the employee's data from the external server. " + getEmployeeDtoException.getMessage());
 		}
 	}
-	
+
+	@CrossOrigin(origins = "http://localhost:8080")
 	@GetMapping(value={"/", ""})
 	public ResponseEntity<?> getEmployees(){
 		try{
