@@ -21,6 +21,7 @@ import reactor.core.publisher.Mono;
  * @author ANDRES-1
  *
  */
+@CrossOrigin
 @RestController
 @RequestMapping("/api/employees")
 public class EmployeeController {
@@ -32,7 +33,6 @@ public class EmployeeController {
 
 	private final String endPoint = "http://dummy.restapiexample.com/api/v1";
 
-	@CrossOrigin(origins = "http://localhost:8080")
 	@GetMapping("/{employeeId}")
 	public ResponseEntity<?> getEmployee(@PathVariable Long employeeId){
 		try{
@@ -51,7 +51,6 @@ public class EmployeeController {
 		}
 	}
 
-	@CrossOrigin(origins = "http://localhost:8080")
 	@GetMapping(value={"/", ""})
 	public ResponseEntity<?> getEmployees(){
 		try{
