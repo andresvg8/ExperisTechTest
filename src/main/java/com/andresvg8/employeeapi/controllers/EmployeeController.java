@@ -4,6 +4,7 @@
 package com.andresvg8.employeeapi.controllers;
 
 import com.andresvg8.employeeapi.dto.EmployeesResponse;
+import com.andresvg8.employeeapi.services.EmployeeDtoService;
 import org.hibernate.service.spi.ServiceException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -26,6 +27,9 @@ import reactor.core.publisher.Mono;
 @RestController
 @RequestMapping("/api/employees")
 public class EmployeeController {
+	@Autowired
+	private EmployeeDtoService employeeDtoService;
+
 	@Autowired
 	private WebClient.Builder webClient;
 
@@ -59,8 +63,11 @@ public class EmployeeController {
 				.onStatus(HttpStatus::is5xxServerError, response -> Mono.error(new ServiceException("External server error.")))
 				.bodyToMono(EmployeesResponse.class)
 				.block();
-			EmployeeDto[] employeeDto = employeesResponse.getData();
-			return ResponseEntity.ok(employeeDto);
+			EmployeeDto[] employeesDto = employeesResponse.getData();
+			for(EmployeeDto employeeDto : employeesDto){
+				employeeDto.setEmployee_annual_salary( employeeDtoService.calculateAnnualSalary(employeeDto) );
+			}
+			return ResponseEntity.ok(employeesDto);
 		}
 		catch(Exception getEmployeesDtoException) {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("\tIt was not possible to retrieve the employees list from the external server. " + getEmployeesDtoException.getMessage());

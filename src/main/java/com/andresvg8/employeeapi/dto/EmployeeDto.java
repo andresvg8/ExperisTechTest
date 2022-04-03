@@ -20,6 +20,7 @@ public class EmployeeDto {
 	@Getter @Setter private Long id;
 	@Getter @Setter private String employee_name;
 	@Getter @Setter private Long employee_salary;
+	@Getter @Setter private Long employee_annual_salary;
 	@Getter @Setter private Long employee_age;
 	@Getter @Setter private String profile_image;
 }
