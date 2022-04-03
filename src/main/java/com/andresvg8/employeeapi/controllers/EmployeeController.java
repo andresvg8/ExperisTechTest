@@ -4,6 +4,7 @@
 package com.andresvg8.employeeapi.controllers;
 
 import com.andresvg8.employeeapi.dto.EmployeesResponse;
+import org.hibernate.service.spi.ServiceException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +17,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 import com.andresvg8.employeeapi.dto.EmployeeDto;
 import com.andresvg8.employeeapi.dto.EmployeeResponse;
+import reactor.core.publisher.Mono;
 
 /**
  * @author ANDRES-1
@@ -35,13 +37,15 @@ public class EmployeeController {
 			EmployeeResponse employeeResponse = webClient.build().get()
 				.uri(endPoint+"/employee/"+employeeId)
 				.retrieve()
+				.onStatus(HttpStatus::is4xxClientError, response -> Mono.error(new ServiceException("Too many requests to the external server.")))
+				.onStatus(HttpStatus::is5xxServerError, response -> Mono.error(new ServiceException("External server error.")))
 				.bodyToMono(EmployeeResponse.class)
 				.block();
 			EmployeeDto employeeDto = employeeResponse.getData();
 			return ResponseEntity.ok(employeeDto);
 		}
 		catch(Exception getEmployeeDtoException) {
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("\tNo se puede recuperar employeeDto: " + getEmployeeDtoException);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("\tIt was not possible to retrieve the employee's data from the external server. " + getEmployeeDtoException.getMessage());
 		}
 	}
 	
@@ -51,13 +55,15 @@ public class EmployeeController {
 			EmployeesResponse employeesResponse = webClient.build().get()
 				.uri(endPoint+"/employees")
 				.retrieve()
+				.onStatus(HttpStatus::is4xxClientError, response -> Mono.error(new ServiceException("Too many requests to the external server.")))
+				.onStatus(HttpStatus::is5xxServerError, response -> Mono.error(new ServiceException("External server error.")))
 				.bodyToMono(EmployeesResponse.class)
 				.block();
 			EmployeeDto[] employeeDto = employeesResponse.getData();
 			return ResponseEntity.ok(employeeDto);
 		}
 		catch(Exception getEmployeesDtoException) {
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("\tNo se puede recuperar employeesDto: " + getEmployeesDtoException);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("\tIt was not possible to retrieve the employees list from the external server. " + getEmployeesDtoException.getMessage());
 		}
 	}
 }
